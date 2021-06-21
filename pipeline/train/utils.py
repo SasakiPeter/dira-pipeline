@@ -1,3 +1,4 @@
+from functools import partial
 import pandas as pd
 from pipeline.conf import settings
 from pipeline.train.base import CrossValidator
@@ -103,12 +104,23 @@ def get_split(algo, n_splits, seed, stratified=None):
             f'Trainer class must provide a {algo} model')
 
 
+def multi_auc(y_true, y_pred):
+    nunique = len(y_true.unique())
+    roc = {idx: 0 for idx in range(nunique)}
+    for idx in range(nunique):
+        roc[idx] += roc_auc_score(y_true.apply(
+            lambda x: 1 if x == idx else 0), y_pred[:, idx])
+    score = sum(val for val in roc.values()) / nunique
+    return score
+
+
 def get_eval_metric(name):
     eval_metrics = {
         'RMSE': rmse,
         'R2': r2_score,
         'logloss': log_loss,
-        'AUC': roc_auc_score
+        'AUC': roc_auc_score,
+        'multi_auc': multi_auc
     }
     return eval_metrics[name]
 

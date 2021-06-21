@@ -99,6 +99,8 @@ def train():
     X, y, id_train = load_train()
     X_test, id_test = load_test()
 
+    n_layers = settings.N_LAYERS
+
     # first layer
     first_layer = settings.FIRST_LAYER
     cv_summary = train_by_layer(
@@ -109,10 +111,11 @@ def train():
     # それぞれのモデルのスコアの平均値をとって、cv_summaryに加える
 
     # second layer
-    second_layer = settings.SECOND_LAYER
-    X, X_test = get_oof_by_layer(first_layer)
-    cv_summary = train_by_layer(
-        second_layer, X, y, id_train, X_test, id_test, cv_summary, folder_path)
+    if 2 <= n_layers:
+        second_layer = settings.SECOND_LAYER
+        X, X_test = get_oof_by_layer(first_layer)
+        cv_summary = train_by_layer(
+            second_layer, X, y, id_train, X_test, id_test, cv_summary, folder_path)
 
     path = f'{folder_path}/summary.csv'
     cv_summary.to_csv(path, encoding='utf-8')

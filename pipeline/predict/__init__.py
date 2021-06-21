@@ -14,6 +14,8 @@ def make_submit_files_by_layer(layer):
 
 
 def predict():
-    layers = [settings.FIRST_LAYER, settings.SECOND_LAYER]
+    layers = [settings.FIRST_LAYER]
+    if 1 < settings.N_LAYERS:
+        layers.append(settings.SECOND_LAYER)
     for layer in layers:
         make_submit_files_by_layer(layer)

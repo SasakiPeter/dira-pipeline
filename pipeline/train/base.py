@@ -100,6 +100,9 @@ class Trainer:
     def binary_proba(self, X):
         return self.model.predict_proba(X)[:, 1]
 
+    def class_proba(self, X):
+        return self.model.predict_proba(X)
+
     def plot_feature_importances(self, columns):
         plt.figure(figsize=(5, int(len(columns) / 3)))
         imps = self.get_feature_importances()
@@ -146,7 +149,11 @@ class CrossValidator:
             K = self.datasplit.get_n_splits()
         else:
             K = n_splits
-        self.oof = np.zeros(len(X), dtype=np.float)
+        # multi class need refactor
+        if prediction == 'class_proba':
+            self.oof = np.zeros(len(X) * 5, dtype=np.float).reshape(len(X), 5)
+        else:
+            self.oof = np.zeros(len(X), dtype=np.float)
         if X_test is not None:
             self.pred = np.zeros(len(X_test), dtype=np.float)
 
@@ -200,6 +207,8 @@ class CrossValidator:
                 self.oof[valid_idx] = model.predict(x_valid)
             elif prediction == 'binary_proba':
                 self.oof[valid_idx] = model.binary_proba(x_valid)
+            elif prediction == 'class_proba':
+                self.oof[valid_idx] = model.class_proba(x_valid)
             else:
                 self.oof[valid_idx] = model.predict(x_valid)
 
@@ -303,7 +312,12 @@ class CrossValidator:
     def save_oof(self, path, ID='ID', y='y', header=True):
         df = pd.DataFrame()
         df[ID] = self.id_train
-        df[y] = self.oof
+        n = len(self.oof[0])
+        if n == 1:
+            df[y] = self.oof
+        else:
+            for i in range(n):
+                df[str(i)] = self.oof.T[i]
         df.to_csv(path, encoding='utf-8', index=False, header=header)
 
     def save_prediction(self, path, ID='ID', y='y', header=True):
