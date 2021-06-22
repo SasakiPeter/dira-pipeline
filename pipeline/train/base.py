@@ -246,7 +246,7 @@ class CrossValidator:
         self.scores['se'] = self.scores['sd'] / np.sqrt(K)
         self.scores['ci'] = self.scores['se'] * 1.96
 
-        log_str = f'[CV] Overall:'
+        log_str = '[CV] Overall:'
         for key in eval_metrics.keys():
             mean = self.scores.loc[key, 'mean']
             sd = self.scores.loc[key, 'sd']
@@ -377,7 +377,7 @@ class Blender:
     def predict(self, X):
         return weighted_average(self.weight, X.values.T)
 
-    def run(self,  X, y, X_test=None, id_test=None,
+    def run(self, X, y, X_test=None, id_test=None,
             eval_metric=None):
         self.id_test = id_test
         self.train(X, y, eval_metric=eval_metric)

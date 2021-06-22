@@ -1,4 +1,3 @@
-from functools import partial
 import pandas as pd
 from pipeline.conf import settings
 from pipeline.train.base import CrossValidator
