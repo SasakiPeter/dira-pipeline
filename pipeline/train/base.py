@@ -155,7 +155,12 @@ class CrossValidator:
         else:
             self.oof = np.zeros(len(X), dtype=np.float)
         if X_test is not None:
-            self.pred = np.zeros(len(X_test), dtype=np.float)
+            # multi class need refactor
+            if prediction == 'class_proba':
+                self.pred = np.zeros(
+                    len(X_test) * 5, dtype=np.float).reshape(len(X_test), 5)
+            else:
+                self.pred = np.zeros(len(X_test), dtype=np.float)
 
         self.imps = np.zeros((X.shape[1], K))
         self.scores = pd.DataFrame()
@@ -217,6 +222,8 @@ class CrossValidator:
                     self.pred += model.predict(x_test) / K
                 elif prediction == 'binary_proba':
                     self.pred += model.binary_proba(x_test) / K
+                elif prediction == 'class_proba':
+                    self.pred += model.class_proba(x_test) / K
                 else:
                     self.pred += model.predict(x_test) / K
 
@@ -323,7 +330,12 @@ class CrossValidator:
     def save_prediction(self, path, ID='ID', y='y', header=True):
         df = pd.DataFrame()
         df[ID] = self.id_test
-        df[y] = self.pred
+        n = len(self.oof[0])
+        if n == 1:
+            df[y] = self.pred
+        else:
+            for i in range(n):
+                df[str(i)] = self.pred.T[i]
         df.to_csv(path, encoding='utf-8', index=False, header=header)
 
 

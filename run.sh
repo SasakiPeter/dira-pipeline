@@ -1,1 +1,1 @@
-docker-compose exec env python manage.py runall first-01
+docker-compose exec env python manage.py runall 02-cv
